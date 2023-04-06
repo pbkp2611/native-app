@@ -1,26 +1,15 @@
-import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text } from 'react-native';
 import { Input, Button } from '@rneui/themed';
 import { usePhoneMutation } from './authApiSlice'
 import { useDispatch } from 'react-redux'
+
 import { setAuthState } from './authSlice';
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-type RootStackParamList = {
-  Start: undefined;
-  Phone: undefined;
-  Password:undefined;
-  Otp:undefined;
-  Profile: {phone: string};
-};
-type PhoneProps = NativeStackScreenProps<RootStackParamList, 'Phone'>;
-
-
-function PhoneScreen({ navigation }:PhoneProps): JSX.Element {
+function PhoneScreen(): JSX.Element {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [errMsg, setErrMsg] = useState('')
-  //const phoneRef = useRef<TextInput>()
   const dispatch = useDispatch()
 
   const [phone, { isLoading }] = usePhoneMutation()
@@ -28,7 +17,6 @@ function PhoneScreen({ navigation }:PhoneProps): JSX.Element {
   const handlePhone = async() => {
     try {
       const { phoneResponse } = await phone(phoneNumber).unwrap()
-      console.log(phoneResponse)
       dispatch(setAuthState(phoneResponse))
       //dispatch phone number, isPasswordSet, isOtpsent, message
       //navigation.navigate('Otp')

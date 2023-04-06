@@ -1,23 +1,21 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Input, Button, Text } from '@rneui/themed';
-import { useLoginMutation } from './authApiSlice';
-import { useDispatch } from 'react-redux';
-import { setCredentials } from './authSlice';
+import { useRefreshMutation } from '../auth/authApiSlice';
+import { useSelector } from 'react-redux';
+import { selectRefreshToken } from '../auth/authSlice';
 
-export default function OtpScreen(): JSX.Element {
+export default function SetProfileScreen(): JSX.Element {
 
-  const [otp, setOtp] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [errMsg, setErrMsg] = useState('')
-  const dispatch = useDispatch()
 
-  const [login, { isLoading }] = useLoginMutation()
+  const [refresh, { isLoading }] = useRefreshMutation()
+  const rt = useSelector(selectRefreshToken)
 
-  const handleOtp = async() => {
+  const handleDisplayName = async() => {
     try {
-      const { accessToken, refreshToken } = await login({phoneNumber:'1234567890', otp:otp, password:null}).unwrap()
-      //console.log(accessToken)
-      dispatch(setCredentials({ accessToken, refreshToken }))
+      await refresh({displayName:displayName, refreshToken:rt}).unwrap()
     } catch (err:any) {
       console.log(err)
       if (!err.status) {
@@ -33,29 +31,20 @@ export default function OtpScreen(): JSX.Element {
     }
   };
 
-  // useEffect(() => {
-  //   otpRef.current.focus()
-  // }, [])
-
-  // useEffect(() => {
-  //   setErrMsg('');
-  // }, [otp])
 
   return (
     <View style={styles.container}>
       {errMsg && <Text>{errMsg}</Text>}
       {isLoading && <Text>Loading...</Text>}
-      <Text style={styles.title}>Welcome to OTP screen</Text>
+      <Text style={styles.title}>Please set your profile</Text>
       <Input
-        placeholder='OTP'
-        keyboardType='phone-pad'
-        // ref={otpRef}
-        value={otp}
-        onChangeText={setOtp}
+        placeholder='Display Name'
+        value={displayName}
+        onChangeText={setDisplayName}
       />
       <Button
         title='Submit'
-        onPress={handleOtp}
+        onPress={handleDisplayName}
         style={{ marginTop: 20 }}
       />
     </View>

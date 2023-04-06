@@ -24,7 +24,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function LoginRoutes(): JSX.Element {
   const otpState = useSelector(selectOtpStatus)
   const passwordState = useSelector(selectPasswordStatus)
-
+  console.log(otpState+' '+passwordState)
   return (
     <Stack.Navigator initialRouteName="Start">
       {

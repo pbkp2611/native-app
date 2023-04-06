@@ -1,17 +1,24 @@
 import React from 'react';
-import { createBottomTabNavigator, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { Text, View, Button } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View, Button } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faMugSaucer } from '@fortawesome/free-solid-svg-icons/faMugSaucer'
+import { faHouse, faUser, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useDispatch } from 'react-redux';
+import { FAB } from '@rneui/themed';
+import jwtDecode from 'jwt-decode';
 
 import GalleryScreen from '../utility/GalleryScreen';
-import { logOut } from '../auth/authSlice';
+import HomeScreen from './HomeScreen';
+import SettingsScreen from './SettingsScreen';
+import { useSelector } from 'react-redux';
+import { selectCurrentToken } from '../auth/authSlice';
+import SetProfileScreen from './SetProfileScreen';
+
 
 type MainStackParamList = {
   Gallery: undefined;
   MainTabs:undefined;
+  SetProfile:undefined;
 };
 
 type MainTabsParamList = {
@@ -24,58 +31,40 @@ type MainTabsParamList = {
 const Tab = createBottomTabNavigator<MainTabsParamList>();
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
-type HomeProps = BottomTabScreenProps<MainTabsParamList, 'Home'>;
-
-function HomeScreen({navigation}:HomeProps): JSX.Element {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Home Screen</Text>
-      <FontAwesomeIcon icon={faMugSaucer} />
-      <Button
-        title="Open gallery"
-        onPress={() => navigation.navigate('Gallery')}
-      />
-    </View>
-  );
-}
-
-function SettingsScreen(): JSX.Element {
-
-  const dispatch = useDispatch()
-
-  function logOutUser(){
-    dispatch(logOut('logout'))
-  }
-
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Setting Screen</Text>
-      <Button
-        title="Logout"
-        onPress={() => logOutUser()}
-      />
-    </View>
-  );
-}
-
 const Btn = (): JSX.Element => {
   return <></>
 }
 
-const Modal = ():JSX.Element => {
-  return (
-    <Button title="   +   "/>
+function TabBtn(): JSX.Element{
+  return(
+    <View>
+      <FAB
+        visible
+        icon={<FontAwesomeIcon icon={faPlus} />}
+        // onPress={()=>navigation.navigate('CreatePostScreen')}
+      />
+    </View>
   )
 }
 
 function AuthRoutes(): JSX.Element {
+  const at = useSelector(selectCurrentToken)
+  const decoded:any = jwtDecode(at)
+  const {username} = decoded.UserInfo
   return (
     <Stack.Navigator initialRouteName="MainTabs">
-      <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }}/>
-      <Stack.Screen name="Gallery" component={GalleryScreen} />
+      {
+        username
+        ?
+        <>
+          <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }}/>
+          <Stack.Screen name="Gallery" component={GalleryScreen} />
+        </>
+        :
+        <Stack.Screen name="SetProfile" component={SetProfileScreen} />
+      }
     </Stack.Navigator>
   )
-
 }
 
 function MainTabs(): JSX.Element {
@@ -87,11 +76,18 @@ function MainTabs(): JSX.Element {
             title="Info"
           />
         ),
+        tabBarIcon:()=>(
+          <FontAwesomeIcon icon={faHouse} />
+        )
       }}/>
       <Tab.Screen name="Create" component={Btn} options={{
-        tabBarButton: () => (<Modal />),
+        tabBarButton: () => (<TabBtn/>)
       }}/>
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{
+        tabBarIcon:()=>(
+          <FontAwesomeIcon icon={faUser} />
+        )
+      }}/>
     </Tab.Navigator>
   );
 }
