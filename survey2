@@ -1,0 +1,388 @@
+import { Input } from '@rneui/base';
+import React, {useState, useEffect} from 'react';
+import { Text, View, StyleSheet, ScrollView } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
+
+function CreateScreen() {
+  const [data, setData] = useState(c)
+  const [qs, setQs] = useState()
+  
+  useEffect(() => {
+    var list = []
+    const addNext = (ids) => {
+      ids.forEach(id => {
+        q = data.find(obj => obj.id == id);
+          if(q.type=='text'){
+            list.push(
+              <View>
+                <Text>{q.text}</Text>
+                <Input style={{borderColor:'grey', borderWidth:1}} />
+              </View>
+            )
+          }else if(q.type=='dropdown'){
+            list.push(
+              <View style={{ flex: 1, margin:5 }}>
+                <Text>{q.text}</Text>
+                <Dropdown
+                  data={q.options}
+                  search
+                  maxHeight={400}
+                  labelField="label"
+                  valueField="value"
+                  searchPlaceholder="Search..."
+                  onChange={item => {
+                    saveOption(item, q.id);
+                  }}
+                />
+              </View>
+            )
+            if(q.response){
+              option = q.options.find(obj => obj.label === q.response);
+              if(option.next)
+                addNext(option.next.split(','))
+            }
+          }
+      })
+    }
+    data.forEach(q => {
+      if(q.response || !q.dependent){
+        if(q.type=='text'){
+          list.push(
+            <View>
+              <Text>{q.text}</Text>
+              <Input style={{borderColor:'grey', borderWidth:1}} />
+            </View>
+          )
+        }else if(q.type=='dropdown'){
+          list.push(
+            <View style={{ flex: 1, margin:5 }}>
+              <Text>{q.text}</Text>
+              <Dropdown
+                data={q.options}
+                search
+                maxHeight={400}
+                labelField="label"
+                valueField="value"
+                searchPlaceholder="Search..."
+                onChange={item => {
+                  saveOption(item, q.id);
+                }}
+              />
+            </View>
+          )
+          if(q.response){
+            option = q.options.find(obj => obj.label === q.response);
+            if(option.next)
+              addNext(option.next.split(','))
+          }
+        }
+      }
+    });
+    setQs(list)
+  }, [data]);
+
+  // var responses = []
+
+  const saveOption = (item, id) =>{
+    const updatedArray = data.map(obj => {
+      if (obj.id === id) {
+        console.log({ ...obj, response: item.label })
+        return { ...obj, response: item.label };
+      }
+      return obj;
+    });
+    setData(updatedArray)
+  }
+
+  // const setNext = list=> {
+  //   console.log(list.split(',').includes(3))
+    
+  // }
+
+  return (
+    <View style={{ flex: 1, width:'100%', height:'100%' }}>
+      <ScrollView>
+        {
+          qs
+          ?
+          qs:
+          <Text>Something went wrong?</Text>
+        }
+      </ScrollView>
+    </View>
+  );
+}
+
+export default CreateScreen
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'white',
+    padding: 16,
+  },
+  dropdown: {
+    height: 50,
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+});
+
+const c = [
+    {
+      id: 1,
+      code: "name",
+      text: "What is your name?",
+      type: "text",
+      options:null,
+      dependent:0,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 2,
+      code: "car",
+      text: "Do you own a car?",
+      type: "dropdown",
+      options: [
+        {value:1, label:'Yes', next:'3,4,5,6,7'},
+        {value:2, label:'No', next:'End'},
+      ],
+      dependent:0,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 3,
+      code: "car2",
+      text: "What car you have?",
+      type: "text",
+      option:null,
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 4,
+      code: "color",
+      text: "What color is your car?",
+      type: "text",
+      option:null,
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 5,
+      code: "mileage",
+      text: "What is the current mileage on your car?",
+      type: "text",
+      option:null,
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 6,
+      code: "transmission",
+      text: "What type of transmission does your car have?",
+      type: "dropdown",
+      options: [
+        {value:1, label:'Manual', next:null},
+        {value:2, label:'Automatic', next:null},
+      ],
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 7,
+      code: "fuelType",
+      text: "What type of fuel does your car use?",
+      type: "dropdown",
+      options: [
+        {value:1, label:'Gasoline', next:'8'},
+        {value:2, label:'Diesel', next:'8'},
+        {value:3, label:'Electric', next:'9'},
+        {value:4, label:'Hybrid', next:'8'},
+      ],
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 8,
+      code: "engineSize",
+      text: "What size is your car's engine?",
+      type: "text",
+      option:null,
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+        id: 9,
+        code: "electric",
+        text: "What is the range of 1 charging?",
+        type: "dropdown",
+        options: [
+          {value:1, label:'200km', next:null},
+          {value:2, label:'500km', next:null},
+          {value:3, label:'700km', next:null},
+        ],
+        dependent:1,
+        mandantory:1,
+        response:null
+      },
+    {
+      id: 10,
+      code: "electric1",
+      text: "What size is your car's battery company?",
+      type: "dropdown",
+      options: [
+        {value:1, label:'TATA', next:'11,12'},
+        {value:2, label:'SONY', next:null},
+        {value:3, label:'TESLA', next:null},
+      ],
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+        id: 11,
+        code: "electric2",
+        text: "What type of tata battery?",
+        type: "text",
+        options:null,
+        dependent:1,
+        mandantory:1,
+        response:null
+    },
+    {
+        id: 12,
+        code: "electric5",
+        text: "IS tata good?",
+        type: "dropdown",
+        options: [
+          {value:1, label:'YES', next:'13,14'},
+          {value:2, label:'NO', next:null},
+        ],
+        dependent:1,
+        mandantory:1,
+        response:null
+    },
+    {
+        id: 13,
+        code: "electric7",
+        text: "What did you like about tata?",
+        type: "text",
+        options:null,
+        dependent:1,
+        mandantory:1,
+        response:null
+    },
+    {
+        id:14,
+        code: "electric8",
+        text: "Do u have any another from tata?",
+        type: "dropdown",
+        options: [
+            {value:1, label:'YES', next:'15'},
+            {value:2, label:'NO', next:null},
+          ],
+        dependent:1,
+        mandantory:1,
+        response:null
+    },
+    {
+        id:15,
+        code: "electric8",
+        text: "What is that expectation",
+        type: "text",
+        option:null,
+        dependent:1,
+        mandantory:1,
+        response:null
+    },
+    {
+      id: 16,
+      code: "numberOfDoors",
+      text: "How many doors does your car have?",
+      type: "text",
+      option:null,
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 17,
+      code: "driveType",
+      text: "What type of drive does your car have?",
+      type: "dropdown",
+      options: [
+        {value:1, label:'Front-wheel drive', next:null},
+        {value:2, label:'Rear-wheel drive', next:null},
+        {value:3, label:'All-wheel drive', next:null},
+      ],
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 18,
+      code: "bodyStyle",
+      text: "What is the body style of your car?",
+      type: "text",
+      option:null,
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 19,
+      code: "price",
+      text: "What is your asking price for the car?",
+      type: "text",
+      option:null,
+      dependent:1,
+      mandantory:1,
+      response:null
+    },
+    {
+      id: 20,
+      code: "thanks",
+      text: "Can we approch you for survey again?",
+      type: "text",
+      options:null,
+      dependent:0,
+      mandantory:1,
+      response:null
+    }
+  ];
